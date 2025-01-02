@@ -46,6 +46,86 @@ export async function saveJob(token, {alreadySaved}, saveData){
     
         return data;
     }
+}
 
-    
+
+export async function getSingleJob(token, {job_id}){
+    const supabase = await supabaseClient(token);
+
+    const{data, error} = await supabase.from("jobs").select("*, company:companies(name,logo_url), applications: applications(*)").eq("id",job_id).single();
+
+    if(error){
+        console.log("Error fetching jobs", error);
+        return null;
+    }
+
+    return data; 
+}
+
+
+export async function updateHiringStatus(token, {job_id}, isOpen){
+    const supabase = await supabaseClient(token);
+
+    const{data, error} = await supabase.from("jobs").update({isOpen}).eq("id",job_id).select();
+
+    if(error){
+        console.log("Error updating job", error);
+        return null;
+    }
+
+    return data; 
+}
+
+export async function addNewJob(token, _, jobData){
+    const supabase = await supabaseClient(token);
+
+    const{data, error} = await supabase.from("jobs").insert([jobData]).select();
+
+    if(error){
+        console.log("Error Creating job", error);
+        return null;
+    }
+
+    return data; 
+}
+
+
+export async function getSavedJobs(token){
+    const supabase = await supabaseClient(token);
+
+    const{data, error} = await supabase.from("saved_jobs").select("*, job:jobs(*, company:companies(name,logo_url))");
+
+    if(error){
+        console.log("Error fetching saved job", error);
+        return null;
+    }
+
+    return data; 
+}
+
+
+export async function getMyJobs(token){
+    const supabase = await supabaseClient(token);
+
+    const{data, error} = await supabase.from("jobs").select("*, company:companies(name,logo_url)").eq("recruiter_id", recruiter_id);
+
+    if(error){
+        console.log("Error fetching jobs", error);
+        return null;
+    }
+
+    return data; 
+}
+
+export async function deleteJob(token, {job_id}){
+    const supabase = await supabaseClient(token);
+
+    const{data, error} = await supabase.from("jobs").delete().eq("id", job_id).select();
+
+    if(error){
+        console.log("Error deleting jobs", error);
+        return null;
+    }
+
+    return data; 
 }
