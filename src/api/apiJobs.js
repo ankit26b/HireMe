@@ -48,7 +48,6 @@ export async function saveJob(token, {alreadySaved}, saveData){
     }
 }
 
-
 export async function getSingleJob(token, {job_id}){
     const supabase = await supabaseClient(token);
 
@@ -61,7 +60,6 @@ export async function getSingleJob(token, {job_id}){
 
     return data; 
 }
-
 
 export async function updateHiringStatus(token, {job_id}, isOpen){
     const supabase = await supabaseClient(token);
@@ -89,7 +87,6 @@ export async function addNewJob(token, _, jobData){
     return data; 
 }
 
-
 export async function getSavedJobs(token){
     const supabase = await supabaseClient(token);
 
@@ -102,7 +99,6 @@ export async function getSavedJobs(token){
 
     return data; 
 }
-
 
 export async function getMyJobs(token){
     const supabase = await supabaseClient(token);

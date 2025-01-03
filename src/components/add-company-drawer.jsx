@@ -16,6 +16,7 @@ import { BarLoader } from "react-spinners";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import useFetch from "@/hooks/use-fetch";
+
 const schema = z.object({
   name: z.string().min(1, { message: "Company name is required" }),
   logo: z

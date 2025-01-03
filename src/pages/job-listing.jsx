@@ -33,6 +33,7 @@ const JobListing = () => {
     company_id,
     searchQuery,
   });
+  
   const {
     fn: fnCompanies,
     data: companies
