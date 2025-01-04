@@ -51,7 +51,7 @@ const PostJobs = () => {
 
   const {
     fn: fnCompanies,
-    data: companies,
+    data: companies ,
     loading: loadingCompanies,
   } = useFetch(getCompanies);
 
@@ -143,13 +143,13 @@ const PostJobs = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {companies.map(({ name, id }) => {
+                    {companies?.map(({ name, id }) => {
                       return (
                         <SelectItem key={name} value={id}>
                           {name}
                         </SelectItem>
                       );
-                    })}
+                    }) || <div>No companies available</div>}
                   </SelectGroup>
                 </SelectContent>
               </Select>
