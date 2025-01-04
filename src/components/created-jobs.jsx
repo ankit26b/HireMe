@@ -1,9 +1,9 @@
 import { getMyJobs } from "@/api/apiJobs";
+import useFetch from "@/hooks/use-fetch";
 import { useUser } from "@clerk/clerk-react";
-import React, { useEffect } from "react";
 import { BarLoader } from "react-spinners";
 import JobCard from "./job-card";
-import useFetch from "@/hooks/use-fetch";
+import { useEffect } from "react";
 
 const CreatedJobs = () => {
   const { user } = useUser();
@@ -18,6 +18,7 @@ const CreatedJobs = () => {
 
   useEffect(() => {
     fnCreatedJobs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -27,12 +28,12 @@ const CreatedJobs = () => {
       ) : (
         <div className="mt-8 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {createdJobs?.length ? (
-            createdJobs.map((job) => {
+            createdJobs?.map((job) => {
               return (
                 <JobCard
                   key={job.id}
                   job={job}
-                  onJobSaved={fnCreatedJobs}
+                  onJobAction={fnCreatedJobs}
                   isMyJob
                 />
               );
