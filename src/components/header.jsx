@@ -24,7 +24,10 @@ const Header = () => {
   }, [search]);
 
   const handleOverlayClick = (e) => {
-    setshowSignIn(false);
+    if(e.target === e.currentTarget){
+      setshowSignIn(false);
+      setSearch({})
+    }
   };
 
   return (
@@ -77,7 +80,7 @@ const Header = () => {
           onClick={handleOverlayClick}
         >
           <SignIn
-            signUpFallbackRedirectUrl="/onboarding"
+            signUpForceRedirectUrl="/onboarding"
             fallbackRedirectUrl="/onboarding"
           />
         </div>

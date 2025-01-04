@@ -58,9 +58,9 @@ const ApplyJobDrawer = ({ user, job, applied = false, fetchJob }) => {
     loading: loadingApply,
   } = useFetch(applyToJob);
 
-  const onSubmit= (data)=>{
+  const onSubmit = (data) => {
     fnApply({
-        ...data,
+      ...data,
       job_id: job.id,
       candidate_id: user.id,
       name: user.fullName,
@@ -70,7 +70,7 @@ const ApplyJobDrawer = ({ user, job, applied = false, fetchJob }) => {
       fetchJob();
       reset();
     });
-  }
+  };
 
   return (
     <Drawer open={applied ? false : undefined}>
@@ -91,7 +91,10 @@ const ApplyJobDrawer = ({ user, job, applied = false, fetchJob }) => {
           <DrawerDescription>Please fill the form below</DrawerDescription>
         </DrawerHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 p-4 pb-0">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-4 p-4 pb-0"
+        >
           <Input
             type="number"
             placeholder="Years of Experience"
@@ -106,7 +109,7 @@ const ApplyJobDrawer = ({ user, job, applied = false, fetchJob }) => {
           )}
 
           <Input
-            type="number"
+            type="text"
             placeholder="Skills (Comma Separated)"
             className="flex-1"
             {...register("skills")}
@@ -145,7 +148,7 @@ const ApplyJobDrawer = ({ user, job, applied = false, fetchJob }) => {
             type="file"
             accept=".pdf, .doc, .docx"
             className="flex-1 file:text-gray-500"
-            {...register("skills")}
+            {...register("resume")}
           />
           {errors.resume && (
             <p className="text-red-500">{errors.resume.message}</p>
@@ -154,7 +157,6 @@ const ApplyJobDrawer = ({ user, job, applied = false, fetchJob }) => {
             <p className="text-red-500">{errorApply?.message}</p>
           )}
           {loadingApply && <BarLoader width={"100%"} color="#36d7b7" />}
-
 
           <Button type="submit" variant="blue" size="lg">
             Apply
