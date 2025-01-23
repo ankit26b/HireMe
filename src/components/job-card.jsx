@@ -18,32 +18,32 @@ const JobCard = ({
   job,
   isMyJob = false,
   savedInit = false,
-  onJobSaved = () => {},
+  onJobAction = () => {},
 }) => {
   const [saved, setSaved] = useState(savedInit);
+  
+
+  const { user } = useUser();
+
+  const {loading:loadingDeleteJob, fn:fnDeleteJob} = useFetch(deleteJob, {job_id: job.id})
+
   const {
     fn: fnSavedJob,
     data: savedJob,
     loading: loadingSavedJob,
-  } = useFetch(saveJob,{
-    alreadySaved : saved,
-  });
-
-  const { user } = useUser();
+  } = useFetch(saveJob);
 
   const handleSaveJob = async () => {
     await fnSavedJob({
       user_id: user.id,
       job_id: job.id,
     });
-    onJobSaved();
+    onJobAction();
   };
-
-  const {loading:loadingDeleteJob, fn:fnDeleteJob} = useFetch(deleteJob, {job_id: job.id})
 
   const handleDeleteJob=async ()=>{
     await fnDeleteJob()
-    onJobSaved;
+    onJobAction;
   }
 
   useEffect(() => {
@@ -55,7 +55,7 @@ const JobCard = ({
       {loadingDeleteJob && (
         <BarLoader className="mt-4" width={"100%"} color="#36d7b7" />
       )}
-      <CardHeader>
+      <CardHeader className = "flex">
         <CardTitle className="flex justify-between font-bold">
           {job.title}
           {isMyJob && (
@@ -78,7 +78,7 @@ const JobCard = ({
         </div>
         <hr />
 
-        {job.description}
+        {job.description.substring(0, job.description.indexOf("."))}
       </CardContent>
 
       <CardFooter className="flex gap-3">

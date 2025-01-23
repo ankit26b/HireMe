@@ -56,7 +56,7 @@ const PostJobs = () => {
   } = useFetch(getCompanies);
 
   useEffect(() => {
-    if (isLoaded) fnCompanies();
+    if (isLoaded){ fnCompanies()};
   }, [isLoaded]);
 
   const {

@@ -45,10 +45,6 @@ const JobListing = () => {
   useEffect(() => {
     if (isLoaded) fnJobs();
   }, [isLoaded, location, company_id, searchQuery]);
-  useEffect(() => {
-    console.log("Companies:", companies);
-    console.log("Jobs:", jobs);
-  }, [companies, jobs]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -111,13 +107,13 @@ const JobListing = () => {
             </SelectGroup>
           </SelectContent>
         </Select>
-        {/* <Select value={company_id} onValueChange={(value) => setCompany_id(value)}>
+        <Select value={company_id} onValueChange={(value) => setCompany_id(value)}>
           <SelectTrigger>
             <SelectValue placeholder="Filter by Companies" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              {companies.map(({name, id}) => {
+              {companies?.map(({name, id}) => {
                 return (
                   <SelectItem key={name} value={id}>
                     {name}
@@ -126,7 +122,7 @@ const JobListing = () => {
               })}
             </SelectGroup>
           </SelectContent>
-        </Select> */}
+        </Select>
         <Button onClick={clearFilters} variant="destructive" className="sm:w-1/2">Clear Filters</Button>
       </div>
 

@@ -1,6 +1,6 @@
 import { getSingleJob, updateHiringStatus } from "@/api/apiJobs";
 import ApplicationCard from "@/components/application-card";
-import ApplyJobDrawer from "@/components/apply-job";
+import {ApplyJobDrawer} from "@/components/apply-job";
 import {
   Select,
   SelectContent,
@@ -45,7 +45,7 @@ const JobPage = () => {
     if (isLoaded) fnJob();
   }, [isLoaded]);
 
-  if (!isLoaded) {
+  if (!isLoaded || loadingJob) {
     return <BarLoader className="mb-4" width={"100%"} color="#36d7b7" />;
   }
 

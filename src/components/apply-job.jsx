@@ -8,12 +8,12 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "./ui/drawer";
-import { Button } from "./ui/button";
+} from "@/components/ui/drawer";
+import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
-import { z } from "zod";
+import * as z from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { applyToJob } from "@/api/apiApplications";
@@ -41,7 +41,7 @@ const schema = z.object({
     ),
 });
 
-const ApplyJobDrawer = ({ user, job, applied = false, fetchJob }) => {
+export function ApplyJobDrawer  ({ user, job, applied = false, fetchJob }) {
   const {
     register,
     handleSubmit,
@@ -115,8 +115,8 @@ const ApplyJobDrawer = ({ user, job, applied = false, fetchJob }) => {
             {...register("skills")}
           />
 
-          {errors.experience && (
-            <p className="text-red-500">{errors.experience.message}</p>
+          {errors.skills && (
+            <p className="text-red-500">{errors.skills.message}</p>
           )}
 
           <Controller
@@ -173,4 +173,3 @@ const ApplyJobDrawer = ({ user, job, applied = false, fetchJob }) => {
   );
 };
 
-export default ApplyJobDrawer;

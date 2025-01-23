@@ -28,7 +28,7 @@ const CreatedApplications = () => {
     <div className="flex flex-col gap-2">
       {applications?.map((application) => {
         return (
-          <ApplicationCard key={application.id} application={application} iscandidate/>
+          <ApplicationCard key={application.id} application={application} iscandidate={true}/>
         );
       }) || <div>Application available</div>}
     </div>

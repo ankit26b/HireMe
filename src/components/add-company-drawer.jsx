@@ -8,7 +8,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "./ui/drawer";
+} from "@/components/ui/drawer";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { addNewCompany } from "@/api/apiCompanies";

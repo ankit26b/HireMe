@@ -32,8 +32,8 @@ export async function saveJob(token, {alreadySaved}, saveData){
         const {data, error:deleteError} = await supabase.from("saved_jobs").delete().eq("job_id", saveData.job_id);
 
         if(deleteError){
-            console.error("Error deleting saved jobs", deleteError);
-            return null;
+            console.error("Error removing saved jobs", deleteError);
+            return data;
         }
         return data;
     }else{
@@ -41,7 +41,7 @@ export async function saveJob(token, {alreadySaved}, saveData){
 
         if(insertError){
             console.error("Error insrting save jobs", insertError);
-            return null;
+            return data;
         }
     
         return data;
@@ -51,7 +51,15 @@ export async function saveJob(token, {alreadySaved}, saveData){
 export async function getSingleJob(token, {job_id}){
     const supabase = await supabaseClient(token);
 
-    const{data, error} = await supabase.from("jobs").select("*, company:companies(name,logo_url), applications: applications(*)").eq("id",job_id).single();
+    let query = supabase
+    .from("jobs")
+    .select(
+      "*, company: companies(name,logo_url), applications: applications(*)"
+    )
+    .eq("id", job_id)
+    .single();
+
+    const { data, error } = await query;
 
     if(error){
         console.log("Error fetching jobs", error);
@@ -100,7 +108,7 @@ export async function getSavedJobs(token){
     return data; 
 }
 
-export async function getMyJobs(token){
+export async function getMyJobs(token, { recruiter_id }){
     const supabase = await supabaseClient(token);
 
     const{data, error} = await supabase.from("jobs").select("*, company:companies(name,logo_url)").eq("recruiter_id", recruiter_id);
@@ -116,11 +124,11 @@ export async function getMyJobs(token){
 export async function deleteJob(token, {job_id}){
     const supabase = await supabaseClient(token);
 
-    const{data, error} = await supabase.from("jobs").delete().eq("id", job_id).select();
+    const{data, error: deleteError } = await supabase.from("jobs").delete().eq("id", job_id).select();
 
-    if(error){
-        console.log("Error deleting jobs", error);
-        return null;
+    if(deleteError){
+        console.log("Error deleting jobs", deleteError);
+        return data;
     }
 
     return data; 
