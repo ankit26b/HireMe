@@ -43,7 +43,7 @@ const JobCard = ({
 
   const handleDeleteJob=async ()=>{
     await fnDeleteJob()
-    onJobAction;
+    onJobAction();
   }
 
   useEffect(() => {
