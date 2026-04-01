@@ -107,7 +107,7 @@ const Landing = () => {
       <Accordion type="single" collapsible>
         {faqs.map((faq, index) => {
           return (
-            <AccordionItem keq={index} value={`item-${index + 1}`}>
+            <AccordionItem key={index} value={`item-${index + 1}`}>
               <AccordionTrigger>{faq.question}</AccordionTrigger>
               <AccordionContent>
                 {faq.answer}
