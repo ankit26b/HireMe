@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Drawer,
   DrawerClose,
@@ -42,6 +42,7 @@ const schema = z.object({
 });
 
 export function ApplyJobDrawer  ({ user, job, applied = false, fetchJob }) {
+  const [isOpen, setIsOpen] = useState(false);
   const {
     register,
     handleSubmit,
@@ -58,27 +59,57 @@ export function ApplyJobDrawer  ({ user, job, applied = false, fetchJob }) {
     loading: loadingApply,
   } = useFetch(applyToJob);
 
-  const onSubmit = (data) => {
-    fnApply({
-      ...data,
-      job_id: job.id,
-      candidate_id: user.id,
-      name: user.fullName,
-      status: "applied",
-      resume: data.resume[0],
-    }).then(() => {
-      fetchJob();
+  const onSubmit = async (data) => {
+    if (!user?.id) {
+      console.error("User not authenticated");
+      return;
+    }
+
+    try {
+      console.log("Applying to job with data:", {
+        job_id: job.id,
+        candidate_id: user.id,
+        name: user.fullName,
+        status: "applied",
+        resume: data.resume[0] ? "File selected" : "No file"
+      });
+
+      await fnApply({
+        job_id: job.id,
+        candidate_id: user.id,
+        name: user.fullName,
+        status: "applied",
+        resume: data.resume[0] || null,
+      });
+      
+      console.log("Application submitted successfully");
+      
+      // Refresh the job data to show updated application status
+      if (fetchJob) {
+        await fetchJob();
+      }
+      
       reset();
-    });
+      setIsOpen(false);
+      
+      // Show success message (you can add a toast notification here)
+      alert("Application submitted successfully!");
+      
+    } catch (error) {
+      console.error("Error applying to job:", error);
+      // Show error message (you can add a toast notification here)
+      alert("Failed to submit application. Please try again.");
+    }
   };
 
   return (
-    <Drawer open={applied ? false : undefined}>
+    <Drawer open={isOpen && !applied} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
         <Button
           size="lg"
           variant={job?.isOpen && !applied ? "blue" : "destructive"}
           disabled={!job?.isOpen || applied}
+          onClick={() => !applied && setIsOpen(true)}
         >
           {job?.isOpen ? (applied ? "Applied" : "Apply") : "Hiring Closed"}
         </Button>
@@ -165,7 +196,7 @@ export function ApplyJobDrawer  ({ user, job, applied = false, fetchJob }) {
 
         <DrawerFooter>
           <DrawerClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>

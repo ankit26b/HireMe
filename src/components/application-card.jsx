@@ -18,7 +18,7 @@ import useFetch from "@/hooks/use-fetch";
 import { updateApplicationStatus } from "@/api/apiApplications";
 import { BarLoader } from "react-spinners";
 
-const ApplicationCard = ({ application, iscandidate = false }) => {
+const ApplicationCard = ({ application, iscandidate = false, onStatusUpdate }) => {
   const handleDownload = () => {
     const link = document.createElement("a");
     link.href = application?.resume;
@@ -29,12 +29,19 @@ const ApplicationCard = ({ application, iscandidate = false }) => {
   const { loading: loadingHiringStatus, fn: fnHiringStatus } = useFetch(
     updateApplicationStatus,
     {
-      job_id: application.job_id,
+      application_id: application.id,
     }
   );
 
-  const handleStatusChange = (status) => {
-    fnHiringStatus(status).then(() => fnHiringStatus());
+  const handleStatusChange = async (status) => {
+    try {
+      await fnHiringStatus(status);
+      if (onStatusUpdate) {
+        onStatusUpdate();
+      }
+    } catch (error) {
+      console.error("Error updating application status:", error);
+    }
   };
 
   return (
