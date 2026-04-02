@@ -30,6 +30,9 @@ export async function applyToJob(token, _, jobData) {
                 name: jobData.name,
                 status: jobData.status || "applied",
                 resume: resume,
+                experience: jobData.experience,
+                skills: jobData.skills,
+                education: jobData.education,
             }])
             .select();
 
@@ -93,6 +96,27 @@ export async function getApplicationsForJob(token, { job_id }) {
   if (error) {
     console.error("Error fetching applications for job", error);
     throw new Error("Failed to fetch job applications");
+  }
+
+  return data;
+}
+
+export async function deleteApplication(token, { application_id }) {
+  const supabase = await supabaseClient(token);
+
+  const { data, error } = await supabase
+    .from("applications")
+    .delete()
+    .eq("id", application_id)
+    .select();
+
+  if (error) {
+    console.error("Error deleting application:", error);
+    throw new Error("Failed to delete application");
+  }
+
+  if (data.length === 0) {
+    throw new Error("No application found to delete");
   }
 
   return data;

@@ -1,11 +1,17 @@
 import supabaseClient from "@/utils/supabase";
 
-export async function getJobs(token, {location, company_id, searchQuery}){
-    console.log("getJobs called with:", {token: token ? "Token exists" : "No token", location, company_id, searchQuery});
+export async function getJobs(token, {location, company_id, searchQuery, user_id}){
+    console.log("getJobs called with:", {token: token ? "Token exists" : "No token", location, company_id, searchQuery, user_id});
     
     const supabase = await supabaseClient(token);
 
-    let query = supabase.from("jobs").select("*, company:companies(name,logo_url), saved: saved_jobs(id)");
+    // First, get all jobs with basic filters
+    let query = supabase
+        .from("jobs")
+        .select(`
+            *, 
+            company:companies(name,logo_url)
+        `);
 
     if(location){
         query = query.eq("location", location);
@@ -18,37 +24,77 @@ export async function getJobs(token, {location, company_id, searchQuery}){
     }
 
     console.log("Executing Supabase query...");
-    const {data, error} = await query;
-
-    console.log("Query result:", {data: data ? `${data.length} jobs found` : "No data", error});
+    const {data: jobs, error} = await query;
 
     if(error){
         console.error("Error fetching jobs", error);
         return null;
     }
 
-    return data;
+    // If user_id is provided, get saved jobs for this user
+    if(user_id && jobs && jobs.length > 0) {
+        const { data: savedJobs, error: savedError } = await supabase
+            .from("saved_jobs")
+            .select("job_id")
+            .eq("user_id", user_id);
+        
+        if(!savedError && savedJobs) {
+            // Use String() to ensure type-safe comparison
+            const savedJobIds = new Set(savedJobs.map(saved => String(saved.job_id)));
+            
+            // Add saved status to each job
+            jobs.forEach(job => {
+                job.saved = savedJobIds.has(String(job.id)) ? [{id: 'saved'}] : [];
+            });
+        } else {
+            jobs.forEach(job => { job.saved = []; });
+        }
+    } else if(jobs) {
+        // If no user_id, set all jobs as not saved
+        jobs.forEach(job => {
+            job.saved = [];
+        });
+    }
+
+    console.log("Query result:", {data: jobs ? `${jobs.length} jobs found` : "No data", error});
+
+    return jobs;
 }
 
-export async function saveJob(token, {alreadySaved}, saveData){
+// useFetch calls: cb(token, options, ...args)
+// So saveJob receives: (token, {}, {alreadySaved, user_id, job_id})
+export async function saveJob(token, _, jobData){
+    const { alreadySaved, user_id, job_id } = jobData;
+    console.log("saveJob API called with:", { alreadySaved, user_id, job_id });
     const supabase = await supabaseClient(token);
 
     if(alreadySaved){
-        const {data, error:deleteError} = await supabase.from("saved_jobs").delete().eq("job_id", saveData.job_id);
+        console.log("Attempting to unsave job...");
+        const {data, error:deleteError} = await supabase
+            .from("saved_jobs")
+            .delete()
+            .eq("job_id", job_id)
+            .eq("user_id", user_id);
 
         if(deleteError){
             console.error("Error removing saved jobs", deleteError);
-            return data;
+            throw new Error("Failed to unsave job");
         }
+        console.log("Job unsaved successfully:", data);
         return data;
     }else{
-        const {data, error: insertError} = await supabase.from("saved_jobs").insert([saveData]).select();
+        console.log("Attempting to save job...");
+        const {data, error: insertError} = await supabase
+            .from("saved_jobs")
+            .insert([{ user_id, job_id }])
+            .select();
 
         if(insertError){
-            console.error("Error insrting save jobs", insertError);
-            return data;
+            console.error("Error inserting save jobs", insertError);
+            throw new Error("Failed to save job");
         }
-    
+        
+        console.log("Job saved successfully:", data);
         return data;
     }
 }
@@ -100,14 +146,17 @@ export async function addNewJob(token, _, jobData){
     return data; 
 }
 
-export async function getSavedJobs(token){
+export async function getSavedJobs(token, { user_id }){
     const supabase = await supabaseClient(token);
 
-    const{data, error} = await supabase.from("saved_jobs").select("*, job:jobs(*, company:companies(name,logo_url))");
+    const{data, error} = await supabase
+        .from("saved_jobs")
+        .select("*, job:jobs(*, company:companies(name,logo_url))")
+        .eq("user_id", user_id);
 
     if(error){
-        console.log("Error fetching saved job", error);
-        return null;
+        console.error("Error fetching saved job", error);
+        throw new Error("Failed to fetch saved jobs");
     }
 
     return data; 

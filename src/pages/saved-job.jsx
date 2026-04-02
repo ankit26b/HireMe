@@ -6,19 +6,22 @@ import { useEffect } from "react";
 import { BarLoader } from "react-spinners";
 
 const SavedJobs = () => {
-  const { isLoaded } = useUser();
+  const { isLoaded, user } = useUser();
 
   const {
     loading: loadingSavedJobs,
-    data: savedJobs,error,
+    data: savedJobs,
+    error,
     fn: fnSavedJobs,
-  } = useFetch(getSavedJobs);
+  } = useFetch(getSavedJobs, {
+    user_id: user?.id
+  });
 
   useEffect(() => {
-    if (isLoaded && !savedJobs) {
+    if (isLoaded && user?.id) {
       fnSavedJobs();
     }
-  }, [isLoaded, savedJobs]);
+  }, [isLoaded, user?.id]);
 
   const deduplicatedJobs = savedJobs
     ? savedJobs.filter(
@@ -26,6 +29,11 @@ const SavedJobs = () => {
           index === self.findIndex((t) => t.job.id === job.job.id)
       )
     : [];
+
+  const handleJobAction = async () => {
+    // Refresh saved jobs list
+    await fnSavedJobs();
+  };
 
   if (!isLoaded || loadingSavedJobs) {
     return <BarLoader className="mb-4" width={"100%"} color="#36d7b7" />;
@@ -46,7 +54,7 @@ const SavedJobs = () => {
             <JobCard
               key={saved.id}
               job={saved?.job}
-              onJobAction={fnSavedJobs}
+              onJobAction={handleJobAction}
               savedInit={true}
             />
           ))

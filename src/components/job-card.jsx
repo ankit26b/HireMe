@@ -21,7 +21,6 @@ const JobCard = ({
   onJobAction = () => {},
 }) => {
   const [saved, setSaved] = useState(savedInit);
-  
 
   const { user } = useUser();
 
@@ -34,21 +33,38 @@ const JobCard = ({
   } = useFetch(saveJob);
 
   const handleSaveJob = async () => {
-    await fnSavedJob({
-      user_id: user.id,
-      job_id: job.id,
-    });
+    const originalSavedState = saved;
+    setSaved(!saved); // Toggle immediately for UX
+    
+    try {
+      // useFetch calls: cb(token, options, ...args)
+      // saveJob expects: (token, _, {alreadySaved, user_id, job_id})
+      // So pass a single object as the first arg to fnSavedJob
+      await fnSavedJob({
+        alreadySaved: originalSavedState,
+        user_id: user.id,
+        job_id: job.id,
+      });
+      
+      // Refresh parent data after successful save/unsave
+      if (onJobAction) {
+        await onJobAction();
+      }
+    } catch (error) {
+      console.error("Error saving job:", error);
+      setSaved(originalSavedState); // Revert on failure
+    }
+  };
+
+  const handleDeleteJob = async () => {
+    await fnDeleteJob();
     onJobAction();
   };
 
-  const handleDeleteJob=async ()=>{
-    await fnDeleteJob()
-    onJobAction();
-  }
-
+  // Reset to savedInit when the component receives new props
   useEffect(() => {
-    if (savedJob !== undefined) setSaved(savedJob?.length > 0);
-  }, [savedJob]);
+    setSaved(savedInit);
+  }, [savedInit]);
 
   return (
     <Card className='flex flex-col'>

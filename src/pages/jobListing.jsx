@@ -22,7 +22,7 @@ const JobListing = () => {
   const [location, setLocation] = useState("");
   const [company_id, setCompany_id] = useState("");
 
-  const { isLoaded } = useUser();
+  const { isLoaded, user } = useUser();
 
   const {
     fn: fnJobs,
@@ -32,6 +32,7 @@ const JobListing = () => {
     location,
     company_id,
     searchQuery,
+    user_id: user?.id,
   });
   
   const {
@@ -44,7 +45,7 @@ const JobListing = () => {
   }, [isLoaded]);
   useEffect(() => {
     if (isLoaded) fnJobs();
-  }, [isLoaded, location, company_id, searchQuery]);
+  }, [isLoaded, location, company_id, searchQuery, user?.id]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -139,6 +140,7 @@ const JobListing = () => {
                   key={job.id}
                   job={job}
                   savedInit={job?.saved?.length > 0}
+                  onJobAction={fnJobs}
                 />
               );
             })

@@ -80,6 +80,9 @@ export function ApplyJobDrawer  ({ user, job, applied = false, fetchJob }) {
         name: user.fullName,
         status: "applied",
         resume: data.resume[0] || null,
+        experience: data.experience,
+        skills: data.skills,
+        education: data.education,
       });
       
       console.log("Application submitted successfully");
