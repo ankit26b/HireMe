@@ -121,3 +121,41 @@ export async function deleteApplication(token, { application_id }) {
 
   return data;
 }
+
+export async function updateApplication(token, { application_id }, updateData) {
+  const supabase = await supabaseClient(token);
+
+  const updatePayload = {
+    experience: updateData.experience,
+    skills: updateData.skills,
+    education: updateData.education,
+  };
+
+  // Upload a new resume only if the user selected a file
+  if (updateData.resume) {
+    const random = Math.floor(Math.random() * 90000);
+    const fileName = `resume-${random}-${application_id}`;
+    const { error: storageError } = await supabase.storage
+      .from("resumes")
+      .upload(fileName, updateData.resume);
+
+    if (!storageError) {
+      updatePayload.resume = `${supabaseUrl}/storage/v1/object/public/resumes/${fileName}`;
+    } else {
+      console.warn("Resume re-upload failed, keeping existing resume:", storageError);
+    }
+  }
+
+  const { data, error } = await supabase
+    .from("applications")
+    .update(updatePayload)
+    .eq("id", application_id)
+    .select();
+
+  if (error) {
+    console.error("Error updating application:", error);
+    throw new Error("Failed to update application");
+  }
+
+  return data;
+}

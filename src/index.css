@@ -132,3 +132,10 @@
   padding-left: 25px;
   color: white;
 }
+
+/* Fix Clerk modal appearing behind carousel */
+.cl-modalBackdrop,
+.cl-modal,
+.cl-rootBox {
+  z-index: 9999 !important;
+}
