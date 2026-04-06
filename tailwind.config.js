@@ -2,6 +2,10 @@
 export default {
     darkMode: ["class"],
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
+  container: {
+    center: true,
+    padding: "2rem",
+  },
   theme: {
   	extend: {
   		borderRadius: {

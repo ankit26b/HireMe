@@ -1,6 +1,7 @@
 import { getSingleJob, updateHiringStatus } from "@/api/apiJobs";
 import ApplicationCard from "@/components/application-card";
 import {ApplyJobDrawer} from "@/components/apply-job";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -12,9 +13,9 @@ import {
 import useFetch from "@/hooks/use-fetch";
 import { useUser } from "@clerk/clerk-react";
 import MDEditor from "@uiw/react-md-editor";
-import { Briefcase, DoorClosed, DoorOpen, MapPinIcon } from "lucide-react";
+import { Briefcase, DoorClosed, DoorOpen, MapPinIcon, ArrowLeft } from "lucide-react";
 import React, { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { BarLoader } from "react-spinners";
 
 const JobPage = () => {
@@ -51,6 +52,12 @@ const JobPage = () => {
 
   return (
     <div className="flex flex-col gap-8 mt-5">
+      <Link to="/jobs">
+        <Button variant="outline" className="gap-2">
+          <ArrowLeft size={16} />
+          Back to Jobs
+        </Button>
+      </Link>
       <div className="flex flex-col-reverse gap-6 md:flex-row justify-between items-center">
         <h1 className="gradient-tile font-extrabold pb-3 text-4xl sm:text-6xl">
           {job?.title}

@@ -16,9 +16,10 @@ import { Input } from "./ui/input";
 import * as z from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { applyToJob } from "@/api/apiApplications";
+import { applyToJob, deleteApplication } from "@/api/apiApplications";
 import useFetch from "@/hooks/use-fetch";
 import { BarLoader } from "react-spinners";
+import ConfirmationDialog from "./ui/confirmation-dialog";
 
 const schema = z.object({
   experience: z
@@ -43,6 +44,8 @@ const schema = z.object({
 
 export function ApplyJobDrawer  ({ user, job, applied = false, fetchJob }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const {
     register,
     handleSubmit,
@@ -58,6 +61,10 @@ export function ApplyJobDrawer  ({ user, job, applied = false, fetchJob }) {
     error: errorApply,
     loading: loadingApply,
   } = useFetch(applyToJob);
+
+  const { loading: loadingCancel, fn: fnCancel } = useFetch(deleteApplication, {
+    application_id: applied?.id,
+  });
 
   const onSubmit = async (data) => {
     if (!user?.id) {
@@ -94,28 +101,49 @@ export function ApplyJobDrawer  ({ user, job, applied = false, fetchJob }) {
       
       reset();
       setIsOpen(false);
-      
-      // Show success message (you can add a toast notification here)
-      alert("Application submitted successfully!");
-      
+      setTimeout(() => setShowSuccessMessage(true), 300);
     } catch (error) {
       console.error("Error applying to job:", error);
-      // Show error message (you can add a toast notification here)
-      alert("Failed to submit application. Please try again.");
+    }
+  };
+
+  const handleCancelApplication = async () => {
+    try {
+      await fnCancel();
+      setShowCancelConfirm(false);
+      if (fetchJob) await fetchJob();
+    } catch (error) {
+      console.error("Error cancelling application:", error);
+      setShowCancelConfirm(false);
     }
   };
 
   return (
+    <>
+    {loadingCancel && <BarLoader className="mb-4" width={"100%"} color="#36d7b7" />}
     <Drawer open={isOpen && !applied} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
-        <Button
-          size="lg"
-          variant={job?.isOpen && !applied ? "blue" : "destructive"}
-          disabled={!job?.isOpen || applied}
-          onClick={() => !applied && setIsOpen(true)}
-        >
-          {job?.isOpen ? (applied ? "Applied" : "Apply") : "Hiring Closed"}
-        </Button>
+        <div className="flex gap-3 items-center">
+          <Button
+            size="lg"
+            className="flex-1"
+            variant={job?.isOpen && !applied ? "blue" : "destructive"}
+            disabled={!job?.isOpen || applied}
+            onClick={() => !applied && setIsOpen(true)}
+          >
+            {job?.isOpen ? (applied ? "Applied" : "Apply") : "Hiring Closed"}
+          </Button>
+          {applied && job?.isOpen && (
+            <Button
+              size="lg"
+              className="flex-1"
+              variant="outline"
+              onClick={(e) => { e.preventDefault(); setShowCancelConfirm(true); }}
+            >
+              Cancel Application
+            </Button>
+          )}
+        </div>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
@@ -204,6 +232,27 @@ export function ApplyJobDrawer  ({ user, job, applied = false, fetchJob }) {
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
+
+    <ConfirmationDialog
+      isOpen={showSuccessMessage}
+      onClose={() => setShowSuccessMessage(false)}
+      onConfirm={() => setShowSuccessMessage(false)}
+      title="Application Submitted"
+      message="Your application has been submitted successfully."
+      confirmText="OK"
+    />
+
+    <ConfirmationDialog
+      isOpen={showCancelConfirm}
+      onClose={() => setShowCancelConfirm(false)}
+      onConfirm={handleCancelApplication}
+      title="Cancel Application"
+      message="Are you sure you want to withdraw your application? This action cannot be undone."
+      confirmText="Yes, Withdraw"
+      cancelText="Keep Application"
+      confirmVariant="destructive"
+    />
+    </>
   );
 };
 

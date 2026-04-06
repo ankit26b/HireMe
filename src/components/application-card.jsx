@@ -21,6 +21,7 @@ import { BarLoader } from "react-spinners";
 import ConfirmationDialog from "./ui/confirmation-dialog";
 
 const ApplicationCard = ({ application, iscandidate = false, onStatusUpdate }) => {
+  const [isDeleted, setIsDeleted] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleDownload = () => {
@@ -29,8 +30,6 @@ const ApplicationCard = ({ application, iscandidate = false, onStatusUpdate }) =
       link.href = application.resume;
       link.target = "_blank";
       link.click();
-    } else {
-      alert("No resume available for this application");
     }
   };
 
@@ -56,23 +55,22 @@ const ApplicationCard = ({ application, iscandidate = false, onStatusUpdate }) =
       }
     } catch (error) {
       console.error("Error updating application status:", error);
-      alert("Failed to update application status");
     }
   };
 
-  const handleDeleteConfirm = async () => {
+  const handleDelete = async () => {
     try {
       await fnDelete();
+      setIsDeleted(true);
       if (onStatusUpdate) {
         onStatusUpdate();
       }
-      setShowDeleteConfirm(false);
-      alert("Application deleted successfully");
     } catch (error) {
       console.error("Error deleting application:", error);
-      alert("Failed to delete application");
     }
   };
+
+  if (isDeleted) return null;
 
   return (
     <Card>
@@ -93,14 +91,12 @@ const ApplicationCard = ({ application, iscandidate = false, onStatusUpdate }) =
                 title="Download Resume"
               />
             )}
-            {!iscandidate && (
               <Trash2
                 size={18}
                 className="bg-red-500 text-white rounded-full h-8 w-8 p-1.5 cursor-pointer hover:bg-red-600"
                 onClick={() => setShowDeleteConfirm(true)}
                 title="Delete Application"
               />
-            )}
           </div>
         </CardTitle>
       </CardHeader>
@@ -149,7 +145,7 @@ const ApplicationCard = ({ application, iscandidate = false, onStatusUpdate }) =
       <ConfirmationDialog
         isOpen={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
-        onConfirm={handleDeleteConfirm}
+        onConfirm={handleDelete}
         title="Delete Application"
         message="Are you sure you want to delete this application? This action cannot be undone."
         confirmText="Delete"

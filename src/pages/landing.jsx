@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import companies from "../data/companies.json";
 import faqs from "../data/faq.json";
 import Autoplay from "embla-carousel-autoplay";
+import { useUser } from "@clerk/clerk-react";
 import {
   Card,
   CardContent,
@@ -24,6 +25,9 @@ import {
 } from "@/components/ui/accordion";
 
 const Landing = () => {
+  const { user } = useUser();
+  const role = user?.unsafeMetadata?.role;
+
   return (
     <main className="flex flex-col gap-10 sm:gap-20 py-10 sm:py-20">
       {/* Heading */}
@@ -41,22 +45,39 @@ const Landing = () => {
         </h1>
 
         <p className="text-gray-300 sm:mt-4 text-xs sm:text-xl">
-          Explore job listings all over the globe Or Find the perfect Candidate
+          {role === "recruiter"
+            ? "Post jobs and find the perfect Candidate for your team"
+            : role === "candidate"
+            ? "Explore thousands of job listings and land your dream role"
+            : "Explore job listings all over the globe Or Find the perfect Candidate"}
         </p>
       </section>
 
       {/* Buttons */}
       <div className="flex gap-6 justify-center">
-        <Link to="/jobs">
-          <Button variant="blue" size="xl">
-            Find Jobs
-          </Button>
-        </Link>
-        <Link to="/post-job">
-          <Button variant="destructive" size="xl">
-            Post A Job
-          </Button>
-        </Link>
+        {/* Not logged in: show both. Candidate: Find Jobs. Recruiter: Post a Job */}
+        {role !== "recruiter" && (
+          <Link to="/jobs">
+            <Button variant="blue" size="xl">
+              Find Jobs
+            </Button>
+          </Link>
+        )}
+        {role !== "candidate" && (
+          <Link to="/post-job">
+            <Button variant="destructive" size="xl">
+              Post A Job
+            </Button>
+          </Link>
+        )}
+        {/* My Jobs button for logged-in users */}
+        {user && (
+          <Link to="/my-jobs">
+            <Button variant="outline" size="xl">
+              My Jobs
+            </Button>
+          </Link>
+        )}
       </div>
 
       {/* carousal */}
